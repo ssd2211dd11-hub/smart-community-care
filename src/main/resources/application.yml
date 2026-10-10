@@ -1,0 +1,93 @@
+# ============================================================
+# 智慧社区居家养老服务与告警协同平台 —— 应用配置
+# ============================================================
+# 本文件是可提交的公共配置，**不含任何真实凭据**。
+#
+# 数据库密码等本机敏感值放在源码资源目录之外：
+#   config/application-local.yml
+# 该文件已被 .gitignore 排除，不会入库、不会打进 JAR。
+# 运行方式不变，仍是 `mvn spring-boot:run` 一条命令：
+# pom 的 spring-boot-maven-plugin 配置了 additional-location，
+# 会自动加载上述文件。
+#
+# 首次克隆后需先创建 config/application-local.yml，
+# 参考 config/application-local.example.yml。
+# ============================================================
+
+server:
+  port: 8890
+
+spring:
+  application:
+    name: care-platform
+
+  datasource:
+    # 账号与密码由外置的 application-local.yml 提供；这里只保留非敏感的连接地址
+    url: jdbc:mysql://localhost:3306/smart_community_care?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${CARE_DB_USERNAME:root}
+    password: ${CARE_DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # 明确不自动建表、不灌种子数据：schema.sql 与 seed-demo.sql 人工执行一次
+  sql:
+    init:
+      mode: never
+
+  jackson:
+    default-property-inclusion: non_null
+
+# ---------------- MyBatis-Plus ----------------
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: ''
+  # 复杂 SQL 放在 resources/mapper/<模块>/ 下，这里只声明位置
+
+# ---------------- Sa-Token 会话 ----------------
+# 首轮使用内存会话：后端重启后需重新登录，不支持多实例共享。
+# 若后续启用本机 Memurai，改为 redis 模式并加入 sa-token-redis-jackson 依赖。
+sa-token:
+  token-name: scc-token
+  # 有效期 8 小时
+  timeout: 28800
+  # 临时活跃有效期 -1 表示不单独限制
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+  is-read-cookie: false
+  is-read-header: true
+  token-prefix: Bearer
+
+# ---------------- 内置设备模拟器 ----------------
+care:
+  simulator:
+    # 全局开关：关闭时不注册调度入口，设备模拟入口返回未启用
+    enabled: false
+    # 调度间隔（毫秒）
+    schedule-interval-ms: 1000
+    # 模拟心跳间隔与离线判定阈值
+    heartbeat-interval-ms: 5000
+    offline-threshold-ms: 20000
+    # 指令创建后的演示执行延迟与有效期
+    command-ready-delay-ms: 2000
+    command-expire-ms: 30000
+
+# ---------------- 日志 ----------------
+logging:
+  level:
+    root: info
+    # 包名随导入改为 org.imnu.smartcommunitycare。
+    # 沿用导入前的 com.example.careplatform 会让这两条配置整体失效，
+    # 表现为「本项目日志里什么都看不到」，只有 root 的兜底级别在起作用。
+    org.imnu.smartcommunitycare: info
+    # 排障时临时改为 debug，勿长期开启（会打印全部 SQL）
+    org.imnu.smartcommunitycare.mapper: info

@@ -1,0 +1,19 @@
+# 复制为 config/application-local.yml 后设置本机值。
+# 本地文件被 Git 忽略，位于资源目录外，不会打入 JAR。
+# Maven 插件读取此路径；java -jar 需显式传入 additional-location，见 README.md。
+spring:
+  datasource:
+    username: ${CARE_DB_USERNAME:CHANGE_ME}
+    password: ${CARE_DB_PASSWORD:CHANGE_ME}
+    # 默认地址来自 application.yml；需要更换时可在这里设置 datasource.url。
+
+# 仅启用平台内置的家电模拟，不连接真实硬件。
+# 全局开关开启后仍需从页面单独启动设备；已运行设备会在重启后继续调度。
+care:
+  simulator:
+    enabled: true
+    schedule-interval-ms: 1000
+    heartbeat-interval-ms: 5000
+    offline-threshold-ms: 20000
+    command-ready-delay-ms: 2000
+    command-expire-ms: 30000

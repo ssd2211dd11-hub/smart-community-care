@@ -1,0 +1,48 @@
+# 构建产物与依赖
+/target/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+*.jar
+*.war
+*.class
+/frontend/vite.config.js.timestamp-*.mjs
+
+# 本机连接配置
+/config/application-local.yml
+*-local.yml
+*-local.yaml
+!application-local.example.yml
+
+# IDE 配置
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# 系统缓存
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# 本机凭据、诊断输出与过程材料
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.bak
+*.hprof
+*.dump
+*.sql.gz
+/backups/
+/db-backup/
+/database/backups/
+/work/
+/workspace/
+/开发资料/
+/.workbuddy/
+/screenshots/
+/test-output/

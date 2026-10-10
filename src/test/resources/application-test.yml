@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    # 集成测试连接专用测试库，不连开发演示库
+    # 测试配置启动时校验实际连接的库名，防止误连
+    url: jdbc:mysql://localhost:3306/smart_community_care_test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    #
+    # 账号与密码不在此处写死，与 src/main/resources/application.yml 同一套约定：
+    #   1) 优先取环境变量 CARE_DB_USERNAME / CARE_DB_PASSWORD；
+    #   2) 取不到时由 pom 的 surefire 传入 spring.config.additional-location，
+    #      读 config/application-local.yml（该文件已被 .gitignore 排除）。
+    # 两个来源都拿不到就是空密码，datasource 会连不上并报错——
+    # 刻意让它失败而不是悄悄用某个兜底值连到别的库。
+    username: ${CARE_DB_USERNAME:root}
+    password: ${CARE_DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+sa-token:
+  token-name: scc-test-token
+  timeout: 28800
+  is-log: false
+
+logging:
+  level:
+    root: warn
+    # 包名随导入改为 org.imnu.smartcommunitycare。
+    # 沿用导入前的 com.example.careplatform 会让本项目的日志配置整体失效，
+    # 表现为「日志里什么都看不到」——本轮验证孤儿提示时才发现。
+    org.imnu.smartcommunitycare: info
+
+# 设备模拟器在测试里必须启用，否则所有设备控制接口都会直接 403。
+#
+# 调度间隔设为极大值：bean 仍然注册（否则接口不可用），
+# 但在测试的十几秒内不会触发任何一轮。用例显式调 executor.tick 控制执行时机，
+# 「提交后何时执行」才是确定的，不会变成偶尔过偶尔不过的竞态。
+care:
+  simulator:
+    enabled: true
+    schedule-interval-ms: 3600000
+    command-ready-delay-ms: 2000
+    command-expire-ms: 30000
